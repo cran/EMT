@@ -50,8 +50,8 @@ function(listMultinom, showmax = 50)
         ylab <- "Relative frequency"
     }
 
-    nmax = min(showmax, length(out$allProb))
-    h <- out$allProb[1:nmax]
+    nmax = min(showmax, length(listMultinom$allProb))
+    h <- listMultinom$allProb[1:nmax]
     
     barplot(h, main = listMultinom$id, xlab = xlab, ylab = ylab, space = 1)
     mtext(paste("Size:",listMultinom$size,"   Groups:",listMultinom$groups, 

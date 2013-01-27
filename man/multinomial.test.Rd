@@ -3,7 +3,7 @@
 \title{ Exact Multinomial Test: Goodness-of-Fit Test for Discrete Multivariate data}
 \description{
   This function runs a Goodness-of-fit test for discrete multivariate data. 
-  It is tested if a given observation is likely to have occured under the assumption of an ab-initio model. 
+  It is tested if a given observation is likely to have occurred under the assumption of an ab-initio model. 
   A p-value can be calculated using different distance measures between observed and expected frequencies. 
   A Monte Carlo method is provided to make the function capable of solving high-dimensional problems.  
 }
@@ -20,12 +20,12 @@ multinomial.test(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 
 }
 \details{
 The Exact Multinomial Test is a Goodness-of-fit test for discrete multivariate data. 
-It is tested if a given observation is likely to have occured under the assumption of an ab-initio model. 
+It is tested if a given observation is likely to have occurred under the assumption of an ab-initio model. 
 In the experimental setup belonging to the test, \emph{n} items fall into \emph{k} categories with certain probabilities
 (sample size \emph{n} with \emph{k} categories). 
 The \bold{observation}, described by the vector \code{observed}, indicates how many items have been observed in each category.  
 The \bold{model}, described by the vector \code{prob}, assigns to each category the hypothetical probability that an item falls into it. 
-Now, if the observation is unlikely to have occured under the assumption of the model, it is advisible to
+Now, if the observation is unlikely to have occurred under the assumption of the model, it is advisible to
 regard the model as \emph{not} valid. The p-value estimates how likely the observation is, given the model.   
 In particular, low p-values suggest that the model is \emph{not} valid.
 The \bold{default approach} used by \code{multinomial.test} obtains the p-values by 
@@ -47,8 +47,8 @@ simulates withdrawal of \emph{ntrial} samples of size \emph{n} from the hypothet
 The default value for \emph{ntrial} is \code{100000} but might be incremented for big \emph{n} and \emph{k}. 
 The advantage of the Monte Carlo approach is that memory requirements and running time are essentially determined by \emph{ntrial} 
 but not by \emph{n} or \emph{k}. 
-By default, the p-value is then obtained by summing the relative frequencies of occurence of unusual outcomes, i.e. of
-outcomes occuring less frequently than the observed one (or equally frequent as the observed one).    
+By default, the p-value is then obtained by summing the relative frequencies of occurrence of unusual outcomes, i.e. of
+outcomes occurring less frequently than the observed one (or equally frequent as the observed one).    
 Alternatively, as above, Pearson's chisquare can be used as a distance measure by setting \code{useChisq = TRUE}.
 The parameter \emph{atOnce} is of more technical nature, with a default value of \eqn{1000000}. This value should be decremented
 for computers with low memory to avoid overflow, and can be incremented for large-CPU computers to speed up calculations. 
@@ -72,7 +72,7 @@ The parameter is only effective for Monte Carlo calculations.
   \emph{Goodness-of-fit statistics for discrete multivariate data.} 
   Springer, New York.
 }
-\author{ Uwe Menzel  <uwe.menzel@math.uu.se> <uwemenzel@gmail.com>}
+\author{ Uwe Menzel <uwemenzel@gmail.com>}
 \note{ For two categories (\eqn{k = 2}), the test is called Exact Binomial Test.
 } 
 \seealso{  
@@ -113,8 +113,8 @@ plotMultinom(out, showmax = 10000)
 
 
 # the same problem using a Monte Carlo approach:
-# we have about 40.000 outcomes and choose 4 million trials to be on the save side:
-out <- multinomial.test(observed, prob, MonteCarlo = TRUE, ntrial = 4000000)   
+# we have about 40.000 outcomes and choose at least 400000 trials (probably to be increased):
+out <- multinomial.test(observed, prob, MonteCarlo = TRUE, ntrial = 400000)   
 # p.value = 0.0343 ; takes a few minutes on a laptop with 2 GB memory, 1.5 GHz speed
 plotMultinom(out, showmax = 5000)  
 
