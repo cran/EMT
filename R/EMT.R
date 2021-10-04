@@ -72,7 +72,8 @@ function(observed, prob, size, groups, numEvents)
     eventMat <- findVectors(groups,size)    		
     if( nrow(eventMat) != numEvents ) stop("Wrong number of events calculated. \n This is probably a bug.")
 
-    eventProb <- apply(eventMat, 1, function(x) dmultinom(x, size=size, prob=prob))  
+    eventProb <- apply(eventMat, 1, function(x) dmultinom(x, size=size, prob=prob)) 
+    eventProb[abs(eventProb - pObs) < .Machine$double.eps^0.5] <- pObs
     p.value = sum(eventProb[eventProb <= pObs])
 
     if(round(sum(eventProb),digits=2) != 1) stop("Wrong values for probabilities. \n This is probably a bug.")
