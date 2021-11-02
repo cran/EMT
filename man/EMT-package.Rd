@@ -2,7 +2,7 @@
 \alias{EMT-package}
 \alias{EMT}
 \docType{package}
-\title{Exact Multinomial Test: Goodness-of-Fit Test for Discrete Multivariate data}
+\title{Exact Multinomial Test: Goodness-of-Fit Test for Discrete Multivariate Data}
 
 \description{
   The package provides functions to carry out a Goodness-of-fit test for discrete multivariate data. 

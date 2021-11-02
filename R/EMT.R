@@ -2,18 +2,20 @@
 
 
 
-
 "multinomial.test" <- 
-function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 100000, atOnce = 1000000) 
+function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 1e6) 
 {
-    if(! is.vector(observed,mode="numeric")) stop(" Observations have to be stored in a vector, e.g.  'observed <- c(5,2,1)'")
-    if(! is.vector(prob,mode="numeric")) stop(" Probabilities have to be stored in a vector, e.g.  'prob <- c(0.25, 0.5, 0.25)'")
-    if(round(sum(prob),digits=1) != 1) stop("Wrong input: sum of probabilities must not deviate from 1.")
-    if(length(observed) != length(prob)) stop(" Observations and probabilities must have same dimensions.")
+    if(!is.vector(observed, mode = "numeric")) stop(" Observations have to be stored in a vector, e.g. 'observed <- c(5,2,1)'")
+    if(!is.vector(prob, mode = "numeric")) stop(" Probabilities have to be stored in a vector, e.g. 'prob <- c(0.25, 0.5, 0.25)'")
+    if(round(sum(prob), digits = 1) != 1) stop("Wrong input: sum of probabilities must not deviate from 1.")
+    if(length(observed) != length(prob)) stop(" Observations and probabilities must have equal dimensions.")
 
-    size <- sum(observed)
-    groups <- length(observed)
-    numEvents <- choose(size + groups - 1, groups - 1)  
+    size = sum(observed)
+    groups = length(observed)
+    numEvents = choose(size + groups - 1, groups - 1)  
+    
+    cat(paste("\n The model includes", numEvents, "different events.\n\n"))
+    if(ntrial < 10*numEvents) cat(" The chosen number of trials is rather low, should be at least 10 times the numver of events.\n\n")
 
     if ( MonteCarlo == FALSE ) {
         if (useChisq == FALSE) {
@@ -23,14 +25,14 @@ function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 100000, 
         }
     } else {
         if ( ntrial < numEvents ) {
-            cat(" \n WARNING: Number of simulated withdrawels is lower than the number of possible outcomes. 
+            cat(" \n WARNING: Number of withdrawels is lower than the number of possible outcomes. 
                 This might yield unreliable results!\n\n")}
             flush.console()
         
         if (useChisq == FALSE) {
-            res <- MonteCarloMultinomialTest(observed, prob, size, groups, numEvents, ntrial, atOnce)
+            res <- MonteCarloMultinomialTest(observed, prob, size, groups, numEvents, ntrial)
         } else {
-            res <- MonteCarloMultinomialTestChisquare(observed, prob, size, groups, numEvents, ntrial, atOnce)
+            res <- MonteCarloMultinomialTestChisquare(observed, prob, size, groups, numEvents, ntrial)
         }
     }
     invisible(res)
@@ -38,26 +40,22 @@ function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 100000, 
 
 
 
-
 "plotMultinom" <- 
-function(listMultinom, showmax = 50) 
+function(listMultinom) 
 {
-    if ((listMultinom$stat == "lowF") | (listMultinom$stat == "lowP")) {
-        xlab <- "Probability of events (sorted)"
-        ylab <- "Probability"
-    } else {
-        xlab <- "Chisquare of events (sorted)"
-        ylab <- "Relative frequency"
-    }
-
-    nmax = min(showmax, length(listMultinom$allProb))
-    h <- listMultinom$allProb[1:nmax]
+    if(!is.list(listMultinom)) stop(" First argument must be a list (output of function 'multinomial.test').")
+    if(is.null(listMultinom$allProb)) stop(" A barplot of probabilities cannot be shown for Monte Carlo methods.\n\n")
+    if(listMultinom$numEvents > 100) stop(" A barplot is not made when the number of events is higher than 100.\n\n")
+        
+    h <- listMultinom$allProb
+    cols = rep("blue", length(h))
+    cols[h <= listMultinom$criticalValue] = "red"
+        
+    barplot(h, main = "Probability vs. Events", xlab = "", ylab = "", space = 1, font.main = 1, las = 2, col = cols)
+    mtext("Events (sorted)", side = 1)
+    mtext(paste("p.value =",listMultinom$p.value), side = 3, col = "blue", cex = 0.9)
     
-    barplot(h, main = listMultinom$id, xlab = xlab, ylab = ylab, space = 1)
-    mtext(paste("Size:",listMultinom$size,"   Groups:",listMultinom$groups, 
-                "   p.value =",listMultinom$p.value), side = 3, col = "blue")
-    if (sum(grep("Carlo", listMultinom$id))) mtext(paste(" Trials: ", listMultinom$ntrial), side = 4, col = "blue")  
-
+    if (sum(grep("Carlo", listMultinom$id))) mtext(paste(" Trials: ", listMultinom$ntrial), side = 4, col = "blue", cex = 0.9)  
     invisible(listMultinom)  			
 }
 
@@ -68,25 +66,25 @@ function(listMultinom, showmax = 50)
 "ExactMultinomialTest" <- 
 function(observed, prob, size, groups, numEvents) 
 {
-    pObs    = dmultinom(observed, size=size, prob) 	
-    eventMat <- findVectors(groups,size)    		
+    pObs = dmultinom(observed, size = size, prob) 	
+    eventMat <- findVectors(groups, size)    		
     if( nrow(eventMat) != numEvents ) stop("Wrong number of events calculated. \n This is probably a bug.")
 
-    eventProb <- apply(eventMat, 1, function(x) dmultinom(x, size=size, prob=prob))  
+    eventProb <- apply(eventMat, 1, function(x) dmultinom(x, size = size, prob = prob)) 
+    eventProb[abs(eventProb - pObs) < .Machine$double.eps^0.5] <- pObs
     p.value = sum(eventProb[eventProb <= pObs])
 
-    if(round(sum(eventProb),digits=2) != 1) stop("Wrong values for probabilities. \n This is probably a bug.")
+    if(round(sum(eventProb), digits = 2) != 1) stop("Wrong values for probabilities. \n This is probably a bug.")
 
-    head <- paste("\n Exact Multinomial Test, distance measure: p\n\n")
+    head <- paste("\n Exact Multinomial Test\n\n")
     tab <- as.data.frame(cbind(numEvents, round(pObs, digits = 4), round(p.value, digits = 4)))
     colnames(tab) <- c("   Events","   pObs","   p.value")
-    cat(head); print(tab,row.names = FALSE)
+    cat(head); print(tab, row.names = FALSE)
 
-    invisible(list(id = "Exact Multinomial Test", size = size, groups = groups, 
-         stat = "lowP", allProb = sort(eventProb, decreasing = TRUE), 
+    invisible(list(id = "Exact Multinomial Test", size = size, groups = groups, numEvents = numEvents, 
+         stat = "lowP", allProb = sort(eventProb, decreasing = TRUE), criticalValue = pObs,
          ntrial = NULL, p.value = round(p.value, digits = 4)))
 } 
-
 
 
 
@@ -95,145 +93,107 @@ function(observed, prob, size, groups, numEvents)
 function(observed, prob, size, groups, numEvents) 
 {
     expectedFreq  = size * prob                     	
-    chi2Obs = chisqStat(observed,expectedFreq)   			
-
-    eventMat <- findVectors(groups,size) 			
+    chi2Obs = chisqStat(observed, expectedFreq)  
+    pObs = dmultinom(observed, size = size, prob) 	
+    
+    eventMat <- findVectors(groups, size) 			
     if( nrow(eventMat) != numEvents ) stop("Wrong number of events calculated. \n This is probably a bug.")
+    eventProb <- apply(eventMat, 1, function(x) dmultinom(x, size = size, prob = prob)) 
+    eventChi2 <- apply(eventMat, 1, function(x) chisqStat(x, expectedFreq))   			
+    eventProb[abs(eventProb - pObs)    < .Machine$double.eps^0.5] <- pObs
+    eventChi2[abs(eventChi2 - chi2Obs) < .Machine$double.eps^0.5] <- chi2Obs
+    eventPandChi2 <- cbind(eventProb, eventChi2)
 
-    eventProb <- apply(eventMat, 1, function(x) dmultinom(x, size=size, prob=prob))   	
-    eventChi2 <- apply(eventMat, 1, function(x) chisqStat(x,expectedFreq))   			
-    eventPandChi2 <- cbind(eventProb,eventChi2)								
-
-    if(round(sum(eventProb),digits=2) != 1) stop("Wrong values for probabilities. \n This is probably a bug.")
-
+    if(round(sum(eventProb), digits = 2) != 1) stop("Wrong values for probabilities. \n This is probably a bug.")
     p.value <- sum((eventPandChi2[eventPandChi2[,2] >= chi2Obs,])[,1])
+    cV = max(eventPandChi2[eventPandChi2[,2] >= chi2Obs,][,1])  
 
-    head <- paste("\n Exact Multinomial Test, distance measure: chisquare\n\n")
+    head <- paste("\n Exact Multinomial Test, Chisquare\n\n")
     tab <- as.data.frame(cbind(numEvents, round(chi2Obs, digits = 4), round(p.value, digits = 4)))
     colnames(tab) <- c("   Events","   chi2Obs","   p.value")
-    cat(head); print(tab,row.names = FALSE)
+    cat(head); print(tab, row.names = FALSE)
 
-    invisible(list(id = "Exact Multinomial Test, Chisquare", size = size, groups = groups, 
-         stat = "highChisq", allProb = sort(eventProb, decreasing = TRUE), 
+    invisible(list(id = "Exact Multinomial Test, Chisquare", size = size, groups = groups, numEvents = numEvents,
+         stat = "highChisq", allProb = sort(eventProb, decreasing = TRUE), criticalValue = cV, 
          ntrial = NULL, p.value = round(p.value, digits = 4)))
 } 
 
 
-
- 
 "MonteCarloMultinomialTest" <- 
-function(observed, prob, size, groups, numEvents, ntrial, atOnce) 
+function(observed, prob, size, groups, numEvents, ntrial) 
 {
-    # run rmultinom for not more than "atOnce" trials at once to avoid huge arrays:
-    IDofObs <- paste(observed, sep="", collapse="")
-    sumLowFreq = 0
-    loops = floor(ntrial/atOnce)
-    rest  = ntrial%%atOnce
-    if (loops > 0) {
-        for (i in 1:loops) {
-            res <- rmultinom(n = atOnce, size = size, prob = prob) 			
-            vec <- apply(res,2,function(x) paste(x,sep="",collapse=""))    		
-            frequencyTable <- table(vec)    							    				
-            if (sum(rownames(frequencyTable) == IDofObs) == 0) {
-                freqObs = 0   										  
-            } else {
-                freqObs <- frequencyTable[rownames(frequencyTable) == IDofObs][[1]]  	
-            } 
-            sumLowFreq  <- sumLowFreq + sum(frequencyTable[as.vector(frequencyTable) <= freqObs])
-            cat(" Number of withdrawals accomplished: ",prettyNum(i*atOnce, scientific = FALSE, big.mark = "."),"\n")
-            flush.console() 
-        }
+    pObs = dmultinom(observed, size = size, prob)
+    lowPs = 0
+    for (i in 1:ntrial) {
+      res <- rmultinom(n = 1, size = size, prob = prob)[,1]   
+      pDraw = dmultinom(res, size = size, prob)  
+      if(abs(pDraw - pObs) < .Machine$double.eps^0.5) pDraw = pObs
+      if(pDraw <= pObs) lowPs <- lowPs + 1
+      if(i%%100000 == 0) cat(" Number of withdrawals: ", prettyNum(i, scientific = FALSE, big.mark = ","),"\n")
     }
-    if (rest > 0 ) {
-        res <- rmultinom(n = rest, size = size, prob = prob) 			
-        vec <- apply(res,2,function(x) paste(x,sep="",collapse=""))    		
-        frequencyTable <- table(vec)    							     				
-        if (sum(rownames(frequencyTable) == IDofObs) == 0) {
-            freqObs = 0   										  
-        } else {
-            freqObs <- frequencyTable[rownames(frequencyTable) == IDofObs][[1]]  	
-        }   
-        sumLowFreq  <- sumLowFreq + sum(frequencyTable[as.vector(frequencyTable) <= freqObs])
-    }
-
-    p.value = (sumLowFreq + 1)/(ntrial + 1) 
-
-    head <- paste("\n Monte Carlo Multinomial Test, distance measure: f\n\n")
-    tab <- as.data.frame(cbind(numEvents, round(freqObs/ntrial, digits = 4), round(p.value, digits = 4)))
-    colnames(tab) <- c("   Events","   fObs","   p.value")
-    cat(head); print(tab,row.names = FALSE)
-
-    invisible(list(id = "Monte Carlo Multinomial Test", size = size, groups = groups, 
-         stat = "lowF", allProb = sort(as.vector(frequencyTable), decreasing = TRUE)/ntrial, 
-         ntrial = ntrial, p.value = round(p.value, digits = 4)))
+    p.value = (lowPs + 1)/(ntrial + 1)  
+    
+    head <- paste("\n Monte Carlo Multinomial Test\n\n")
+    tab <- as.data.frame(cbind(numEvents, round(pObs, digits = 4), round(p.value, digits = 4)))
+    colnames(tab) <- c("   Events","   pObs","   p.value")
+    cat(head); print(tab, row.names = FALSE)
+    
+    invisible(list(id = "Monte Carlo Multinomial Test", size = size, groups = groups, numEvents = numEvents,
+                   stat = "lowF", allProb = NULL, criticalValue = pObs,
+                   ntrial = ntrial, p.value = round(p.value, digits = 4)))    
 } 
-
-
 
 
 
 "MonteCarloMultinomialTestChisquare" <- 
-function(observed, prob, size, groups, numEvents, ntrial, atOnce) 
+function(observed, prob, size, groups, numEvents, ntrial) 
 { 
-    expectedFreq  = size * prob                     			
-    chi2Obs = chisqStat(observed,expectedFreq)
-
-    # run rmultinom for not more than "atOnce" trials at once to avoid huge arrays:
+    expectedFreq  = size * prob                    			
+    chi2Obs = chisqStat(observed, expectedFreq)
+    
     bigChis = 0
-    loops = floor(ntrial/atOnce)
-    rest  = ntrial%%atOnce
-    if (loops > 0) {
-        for (i in 1:loops) {
-            res <- rmultinom(n = atOnce, size = size, prob = prob) 		
-            chi2all <- apply(res,2,function(x) chisqStat(x,expectedFreq))		
-            bigChis <- bigChis + length(chi2all[chi2all >= chi2Obs])     			 
-            cat(" Number of withdrawals accomplished: ",prettyNum(i*atOnce, scientific = FALSE, big.mark = "."),"\n")
-            flush.console()
-        }
-    }
-    if (rest > 0 ) {
-        res <- rmultinom(n = rest, size = size, prob = prob) 		
-        chi2all <- apply(res,2,function(x) chisqStat(x,expectedFreq))		
-        bigChis <- bigChis + length(chi2all[chi2all >= chi2Obs])     			 
-    }
-    if((atOnce * loops + rest) != ntrial) stop(" Number of withdrawals made incorrect.\n This is probably a bug.") 
-
-    p.value = (bigChis + 1)/(ntrial + 1) 
-
-    head <- paste("\n Monte Carlo Multinomial Test, distance measure: chisquare\n\n")
+    for (i in 1:ntrial) {
+      res <- rmultinom(n = 1, size = size, prob = prob)[,1]   
+      chi2Draw = chisqStat(res, expectedFreq)  
+      if(abs(chi2Draw - chi2Obs) < .Machine$double.eps^0.5) chi2Draw = chi2Obs
+      if(chi2Draw >= chi2Obs) bigChis <- bigChis + 1
+      if(i%%100000 == 0) cat(" Number of withdrawals: ", prettyNum(i, scientific = FALSE, big.mark = ","),"\n")
+    } 
+    p.value = (bigChis + 1)/(ntrial + 1)
+    
+    head <- paste("\n Monte Carlo Multinomial Test, Chisquare\n\n")
     tab <- as.data.frame(cbind(numEvents, round(chi2Obs, digits = 4), round(p.value, digits = 4)))
     colnames(tab) <- c("   Events","   chi2Obs","   p.value")
-    cat(head); print(tab,row.names = FALSE)
-
-    invisible(list(id = "Monte Carlo Multinomial Test, Chisquare", size = size, groups = groups, 
-         stat = "highChi2", allProb = sort(as.vector(table(chi2all))/ntrial, decreasing = TRUE), 
-         ntrial = ntrial, p.value = round(p.value, digits = 4)))			   
+    cat(head); print(tab, row.names = FALSE)
+    
+    invisible(list(id = "Monte Carlo Multinomial Test, Chisquare", size = size, groups = groups, numEvents = numEvents, 
+                   stat = "highChi2", allProb = NULL, criticalValue = chi2Obs,
+                   ntrial = ntrial, p.value = round(p.value, digits = 4)))			   
 } 
-
 
 
 
 
 "chisqStat" <- 
-function(observed,expected) 
+function(observed, expected) 
 {
-    chisq = sum((observed-expected)^2/expected)
+    chisq = sum((observed - expected)^2/expected)
     invisible(chisq)   	
 }
 
 
 
 "findVectors" <- 			
-function(groups,size) 
+function(groups, size) 
 {  
     if (groups == 1) {
         mat = size    
     } else { 
-        mat <- matrix(rep(0,groups-1),nrow=1)  
+        mat <- matrix(rep(0, groups - 1), nrow = 1)  
         for (i in 1:size) {
-            mat <- rbind(mat,findVectors(groups-1,i))  
+            mat <- rbind(mat, findVectors(groups - 1, i))  
         } 
-        mat <- cbind(mat,size - rowSums(mat))   
+        mat <- cbind(mat, size - rowSums(mat))   
     } 
     invisible(mat)
 }
@@ -241,5 +201,5 @@ function(groups,size)
 
 
 ## 2010; uwe.menzel@math.uu.se   uwemenzel@gmail.com
-
+## 2021 uwe.menzel@matstat.org  uwemenzel@gmail.com
 

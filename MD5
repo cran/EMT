@@ -1,7 +1,8 @@
-bcb59b99afd6ec308210a529ba68d751 *DESCRIPTION
-9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
-b3b73f117ac42474d04e3546bde561ea *R/EMT.R
-91ea7cb8d355d24abd60b383fc5bf888 *man/EMT-internal.Rd
-0e625c759e4dd69f4eb34616c43ae7bc *man/EMT-package.Rd
-2cf0509299eeff6deeef698d7a45efa2 *man/multinomial.test.Rd
-5360a6df1cd6b210b156d44b2a046f6b *man/plotMultinom.Rd
+492aaf3636b55a02238349c91f8e1f33 *DESCRIPTION
+8834d19a58577ef8da20e1f9537fbfe0 *NAMESPACE
+6b2ba3aa9146bc80204bdac36ff3fa2b *NEWS
+91e79fe27e22c13eb6965db21110f9c6 *R/EMT.R
+af9b19a198b1431cb3a7704a69388e9a *man/EMT-internal.Rd
+a58955b0cc91aeded1fb19a99fb763f1 *man/EMT-package.Rd
+19db5e9beb5d9c444fbd1de36b16c133 *man/multinomial.test.Rd
+6866d0a1a406113e195dfd263935d1f8 *man/plotMultinom.Rd

@@ -1,0 +1,15 @@
+EMT v1.2 (Release date: 2021-10-31)
+==================================
+
+BUG FIXES:
+
+* Bug fixed concerning numerical precision in response to pull request #1 at https://github.com/cran/EMT/pull/1 by Boris Mayer.
+
+CHANGES:
+ 
+* Functions for Monte Carlo methods have been essentialy modified in order to save memory and increase stability during repeated runs. 
+* Improved graphics for the Exact Multinomial tests: probabilities contributing to the p-value are marked red.
+* Barplots for the Monte Carlo methods have been disabled because of limited usefulness.
+
+
+
