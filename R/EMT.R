@@ -15,7 +15,7 @@ function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 1e6)
     numEvents = choose(size + groups - 1, groups - 1)  
     
     cat(paste("\n The model includes", numEvents, "different events.\n\n"))
-    if(ntrial < 10*numEvents) cat(" The chosen number of trials is rather low, should be at least 10 times the numver of events.\n\n")
+    if(MonteCarlo & ntrial < 10*numEvents) cat(" The chosen number of trials is rather low, should be at least 10 times the numver of events.\n\n")
 
     if ( MonteCarlo == FALSE ) {
         if (useChisq == FALSE) {
