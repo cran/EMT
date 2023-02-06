@@ -8,7 +8,7 @@
 }
 \usage{
 multinomial.test(observed, prob, useChisq = FALSE,
-               MonteCarlo = FALSE, ntrial = 1e6)
+               MonteCarlo = FALSE, ntrial = 1e6, atOnce = 1e6)
 }
 \arguments{
   \item{observed}{ vector describing the observation: contains the \emph{observed numbers} of items in each category. }
@@ -16,6 +16,7 @@ multinomial.test(observed, prob, useChisq = FALSE,
   \item{useChisq}{ if \code{TRUE}, Pearson's chisquare is used as a distance measure between observed and expected frequencies. }
   \item{MonteCarlo}{ if \code{TRUE}, a Monte Carlo approach is used. }
   \item{ntrial}{ number of simulated samples in the Monte Carlo approach. }
+  \item{atOnce}{ a parameter of more technical nature. Determines how much memory is used for big arrays. }  
 }
 \details{
 The Exact Multinomial Test is a Goodness-of-fit test for discrete multivariate data. 
@@ -49,6 +50,9 @@ but not by \emph{n} or \emph{k}.
 By default, the p-value is then obtained by summing the relative frequencies of occurrence of unusual outcomes, i.e. of
 outcomes occurring less frequently than the observed one (or equally frequent as the observed one).    
 Alternatively, as above, Pearson's chisquare can be used as a distance measure by setting \code{useChisq = TRUE}.
+The parameter \emph{atOnce} is of more technical nature, with a default value of \eqn{1000000}. This value should be decremented
+for computers with low memory to avoid overflow, and can be incremented for large-CPU computers to speed up calculations. 
+The parameter is only effective for Monte Carlo calculations.
 }
 \value{
   \item{id}{textual description of the method used.}

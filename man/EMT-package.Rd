@@ -16,8 +16,8 @@
 \tabular{ll}{
 Package: \tab CCP\cr
 Type: \tab Package\cr
-Version: \tab 0.1\cr
-Date: \tab 2009-12-14\cr
+Version: \tab 1.3\cr
+Date: \tab 2013-02-06\cr
 License: \tab GPL\cr
 }
 }
