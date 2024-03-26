@@ -15,8 +15,6 @@ function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 1e6, atO
     numEvents = choose(size + groups - 1, groups - 1)  
     
     cat(paste("\n The model includes", numEvents, "different events.\n\n"))
-    if(ntrial < 10*numEvents) 
-      cat(" The chosen number of trials is rather low, should be at least 10 times the number of possible configurations.\n\n")
 
     if ( MonteCarlo == FALSE ) {
         if (useChisq == FALSE) {
@@ -25,11 +23,9 @@ function(observed, prob, useChisq = FALSE, MonteCarlo = FALSE, ntrial = 1e6, atO
             res <- ExactMultinomialTestChisquare(observed, prob, size, groups, numEvents)
         }
     } else {
-        if ( ntrial < numEvents ) {
-            cat(" \n WARNING: Number of withdrawals is lower than the number of possible configurations.\n");
-            cat("          This will produce unreliable results!\n\n")
-        } 
-          flush.console()
+        if(ntrial < 10*numEvents) 
+        cat(" The chosen number of trials is rather low, you might consider increasing the parameter 'ntrials'.\n\n")
+        flush.console()
         
         if (useChisq == FALSE) {
             res <- MonteCarloMultinomialTest(observed, prob, size, groups, numEvents, ntrial, atOnce)
