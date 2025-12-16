@@ -5,6 +5,7 @@ BUG FIXES:
 
 * Minor output bug fixed in response to a suggestion by Boris Mayer  
 * Bug fixed concerning numerical precision in response to pull request #1 at https://github.com/cran/EMT/pull/1 by Boris Mayer.
+* Bug fixed that occurs when ntrial < atOnce
 
 CHANGES:
  

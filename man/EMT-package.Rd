@@ -24,7 +24,7 @@ License: \tab GPL\cr
 
 \author{Uwe Menzel
 
-  Maintainer: Uwe Menzel  <uwemenzel@gmail.com>
+  Maintainer: Uwe Menzel  <uwemenzel at gmail.com>
 }
 
 \keyword{htest}

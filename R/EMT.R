@@ -129,6 +129,7 @@ function(observed, prob, size, groups, numEvents)
   {
     IDofObs <- paste0(observed, collapse = "")
     sumLowFreq = 0
+    if(ntrial < atOnce) atOnce = ntrial
     loops = floor(ntrial/atOnce)
     if(ntrial%%atOnce > 0) loops = loops + 1    
     
@@ -176,6 +177,7 @@ function(observed, prob, size, groups, numEvents)
     expectedFreq  = size * prob                     			
     chi2Obs = chisqStat(observed, expectedFreq)
     bigChis = 0
+    if(ntrial < atOnce) atOnce = ntrial
     loops = floor(ntrial/atOnce)
     if(ntrial%%atOnce > 0) loops = loops + 1    
     
